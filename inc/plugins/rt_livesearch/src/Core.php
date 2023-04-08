@@ -32,7 +32,7 @@ class Core
 			'website' => 'https://github.com/RevertIT/mybb-rt_livesearch',
 			'author' => 'RevertIT',
 			'authorsite' => 'https://github.com/RevertIT/',
-			'version' => '1.0',
+			'version' => '1.1',
 			'compatibility' => '18*',
 			'codename' => 'rt_livesearch',
 			'prefix' => 'rt_livesearch'

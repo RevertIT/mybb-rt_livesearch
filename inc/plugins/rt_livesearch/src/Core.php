@@ -269,8 +269,8 @@ class Core
 
 		return match ($function)
 		{
-			'keypress' => isset($mybb->settings['rt_livesearch_keypress_usergroups'], $mybb->settings['rt_livesearch_keypress_enabled']) && (str_contains($mybb->settings['rt_livesearch_keypress_usergroups'], $mybb->user['usergroup']) || $mybb->settings['rt_livesearch_keypress_usergroups'] === '-1') && $mybb->settings['rt_livesearch_keypress_enabled'] === '1',
-			'customajax' => isset($mybb->settings['rt_livesearch_customajax_usergroups'], $mybb->settings['rt_livesearch_customajax_enabled']) && (str_contains($mybb->settings['rt_livesearch_customajax_usergroups'], $mybb->user['usergroup']) || $mybb->settings['rt_livesearch_customajax_usergroups'] === '-1') && $mybb->settings['rt_livesearch_keypress_enabled'] === '1',
+			'keypress' => isset($mybb->settings['rt_livesearch_keypress_usergroups'], $mybb->settings['rt_livesearch_keypress_enabled']) && (str_contains($mybb->settings['rt_livesearch_keypress_usergroups'], (string) $mybb->user['usergroup']) || $mybb->settings['rt_livesearch_keypress_usergroups'] === '-1') && $mybb->settings['rt_livesearch_keypress_enabled'] === '1',
+			'customajax' => isset($mybb->settings['rt_livesearch_customajax_usergroups'], $mybb->settings['rt_livesearch_customajax_enabled']) && (str_contains($mybb->settings['rt_livesearch_customajax_usergroups'], (string) $mybb->user['usergroup']) || $mybb->settings['rt_livesearch_customajax_usergroups'] === '-1') && $mybb->settings['rt_livesearch_keypress_enabled'] === '1',
 			default => throw new \Exception('Function not found'),
 		};
 	}

@@ -32,7 +32,7 @@
             </table>
         </form>
         <script>
-            LiveSearch.searchInput('.rt_livesearch_modal_keypress', {$settings->rt_livesearch_keypress_timeout});
+            LiveSearch.searchInput('.rt_livesearch_modal_keypress', {$mybb->settings['rt_livesearch_keypress_timeout']});
         </script>
     </div>
 </div>

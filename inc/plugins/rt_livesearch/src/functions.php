@@ -187,6 +187,7 @@ function load_templatelist(string|array $templates): void
 
 /**
  * Load templates
+ * 
  * @param string $name
  * @param bool $modal True if you want to load no html comments for modal
  * @return string

@@ -31,6 +31,10 @@ let LiveSearch = {
         let timeoutId;
 
         const inputClass = pluginClass + '_keywords';
+        const container = document.querySelector(pluginClass + '_container');
+        const spinnerClass = document.querySelector(pluginClass + '_spinner');
+        const viewAll = document.querySelector(pluginClass + '_viewall');
+
         document.querySelector(inputClass).addEventListener("input", (event) =>
         {
             clearTimeout(timeoutId);
@@ -39,6 +43,9 @@ let LiveSearch = {
 
             if (searchTerm === "")
             {
+                container.innerHTML = spinner;
+                spinnerClass.innerHTML = '';
+                viewAll.innerHTML = '';
                 return;
             }
 
@@ -48,12 +55,12 @@ let LiveSearch = {
             }, searchDelay);
         });
     },
-    searchAjax: async (pC) =>
+    searchAjax: async (pluginClass) =>
     {
-        const container = document.querySelector(pC + '_container');
-        const spinnerClass = document.querySelector(pC + '_spinner');
-        const formClass = document.querySelector(pC + '_form');
-        const viewAll = document.querySelector(pC + '_viewall');
+        const container = document.querySelector(pluginClass + '_container');
+        const spinnerClass = document.querySelector(pluginClass + '_spinner');
+        const formClass = document.querySelector(pluginClass + '_form');
+        const viewAll = document.querySelector(pluginClass + '_viewall');
 
         try
         {
@@ -104,6 +111,7 @@ let LiveSearch = {
         }
         catch (error)
         {
+            viewAll.innerHTML = '';
             spinnerClass.innerHTML = '';
             container.innerHTML = `<small class="error_message">${error}</small>`;
         }

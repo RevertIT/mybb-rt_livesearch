@@ -166,6 +166,51 @@ class Core
         }
     }
 
+
+    /**
+     * Add custom database columns on existing tables
+     *
+     * @return void
+     */
+    public static function add_database_columns(): void
+    {
+        global $db;
+
+        if (!$db->field_exists('rt_ajax', 'searchlog'))
+        {
+            $db->add_column('searchlog', 'rt_ajax', "tinyint NOT NULL DEFAULT 0");
+        }
+    }
+
+    /**
+     * Remove custom database columns on existing tables
+     *
+     * @return void
+     */
+    public static function drop_database_columns(): void
+    {
+        global $mybb, $db, $lang, $page;
+
+        $prefix = self::$plugin_info['prefix'];
+
+        if($mybb->request_method !== 'post')
+        {
+            $lang->load($prefix);
+
+            $page->output_confirm_action('index.php?module=config-plugins&action=deactivate&uninstall=1&plugin=' . self::$plugin_info['prefix'], $lang->{$prefix . '_uninstall_message'}, $lang->uninstall);
+        }
+
+        // Drop tables
+        if(!isset($mybb->input['no']))
+        {
+            if ($db->field_exists('rt_ajax', 'searchlog'))
+            {
+                $db->drop_column('searchlog', 'password_algorithm');
+            }
+        }
+
+    }
+
     /**
      * Generate settings
      *

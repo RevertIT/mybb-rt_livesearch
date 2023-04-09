@@ -42,17 +42,17 @@ function rt_livesearch_info(): array
         'authorsite'	=> 	\rt\LiveSearch\Core::get_plugin_info('authorsite'),
         'version'		=>  \rt\LiveSearch\Core::get_plugin_info('version'),
         'compatibility'	=>  \rt\LiveSearch\Core::get_plugin_info('compatibility'),
-        'codename'		=>  \rt\LiveSearch\Core::get_plugin_info('codename') . '-' . strtolower(\rt\LiveSearch\Core::get_plugin_info('version')),
+        'codename'		=>  \rt\LiveSearch\Core::get_plugin_info('codename'),
     ];
 }
 
 function rt_livesearch_install(): void
 {
-
     \rt\LiveSearch\load_pluginlibrary();
     \rt\LiveSearch\check_php_version();
 
     \rt\LiveSearch\Core::set_cache();
+    \rt\LiveSearch\Core::add_database_columns();
 }
 
 function rt_livesearch_is_installed(): bool
@@ -65,6 +65,7 @@ function rt_livesearch_uninstall(): void
     \rt\LiveSearch\load_pluginlibrary();
     \rt\LiveSearch\check_php_version();
 
+    \rt\LiveSearch\Core::drop_database_columns();
     \rt\LiveSearch\Core::remove_settings();
     \rt\LiveSearch\Core::remove_cache();
 }

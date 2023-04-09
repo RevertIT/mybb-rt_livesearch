@@ -96,16 +96,16 @@ function check_plugin_status(): ?string
         $installed = $cache->read(Core::get_plugin_info('prefix'))['version'] ?? 0;
         $current = Core::get_plugin_info('version');
 
-        $lang->rt_livesearch_plugin_outdated = $lang->sprintf($lang->rt_livesearch_plugin_outdated, $installed, $current);
+        $outdated = $lang->sprintf($lang->{Core::get_plugin_info('prefix') . '_plugin_outdated'}, $installed, $current);
 
         return <<<UPDATE
-			<br><span style="color: darkorange; font-weight: 700">{$lang->rt_livesearch_plugin_outdated}</span>
+			<br><span style="color: darkorange; font-weight: 700">{$outdated}</span>
 			UPDATE;
     }
     if (Core::is_healthy() !== true)
     {
         return <<<ERROR
-			<br><span style="color: red; font-weight: 700">{$lang->rt_livesearch_plugin_unhealthy}</span>
+			<br><span style="color: red; font-weight: 700">{$lang->{Core::get_plugin_info('prefix') . '_plugin_unhealthy'}}</span>
 			ERROR;
     }
 

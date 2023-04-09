@@ -24,11 +24,11 @@ namespace rt\LiveSearch;
  */
 function edit_template(string $title, string $find, string $replace): void
 {
-	// Include this file because it is where find_replace_templatesets is defined
-	require_once MYBB_ROOT . 'inc/adminfunctions_templates.php';
+    // Include this file because it is where find_replace_templatesets is defined
+    require_once MYBB_ROOT . 'inc/adminfunctions_templates.php';
 
-	// Edit the index template and add our variable to above {$forums}
-	find_replace_templatesets($title, '#' . preg_quote($find) . '#', $replace);
+    // Edit the index template and add our variable to above {$forums}
+    find_replace_templatesets($title, '#' . preg_quote($find) . '#', $replace);
 }
 
 /**
@@ -38,32 +38,32 @@ function edit_template(string $title, string $find, string $replace): void
  */
 function load_pluginlibrary(): void
 {
-	global $lang, $PL;
+    global $lang, $PL;
 
-	$lang->load(Core::get_plugin_info('prefix'));
+    $lang->load(Core::get_plugin_info('prefix'));
 
-	if (!defined('PLUGINLIBRARY'))
-	{
-		define('PLUGINLIBRARY', MYBB_ROOT . 'inc/plugins/pluginlibrary.php');
-	}
+    if (!defined('PLUGINLIBRARY'))
+    {
+        define('PLUGINLIBRARY', MYBB_ROOT . 'inc/plugins/pluginlibrary.php');
+    }
 
-	if (file_exists(PLUGINLIBRARY))
-	{
-		if (!$PL)
-		{
-			require_once PLUGINLIBRARY;
-		}
-		if (version_compare((string) $PL->version, '13', '<'))
-		{
-			flash_message("PluginLibrary version is outdated, please update the plugin.", "error");
-			admin_redirect("index.php?module=config-plugins");
-		}
-	}
-	else
-	{
-		flash_message("PluginLibrary is missing.", "error");
-		admin_redirect("index.php?module=config-plugins");
-	}
+    if (file_exists(PLUGINLIBRARY))
+    {
+        if (!$PL)
+        {
+            require_once PLUGINLIBRARY;
+        }
+        if (version_compare((string) $PL->version, '13', '<'))
+        {
+            flash_message("PluginLibrary version is outdated, please update the plugin.", "error");
+            admin_redirect("index.php?module=config-plugins");
+        }
+    }
+    else
+    {
+        flash_message("PluginLibrary is missing.", "error");
+        admin_redirect("index.php?module=config-plugins");
+    }
 }
 
 /**
@@ -73,29 +73,43 @@ function load_pluginlibrary(): void
  */
 function check_php_version(): void
 {
-	if (version_compare(PHP_VERSION, '8.0.0', '<'))
-	{
-		flash_message("PHP version must be at least 8.0.", "error");
-		admin_redirect("index.php?module=config-plugins");
-	}
+    if (version_compare(PHP_VERSION, '8.0.0', '<'))
+    {
+        flash_message("PHP version must be at least 8.0.", "error");
+        admin_redirect("index.php?module=config-plugins");
+    }
 }
 
 /**
  * Determine the 'health' of the plugin
  *
- * @return string|bool
+ * @return string|null
  */
-function check_plugin_status(): string|bool
+function check_plugin_status(): ?string
 {
-	if (Core::is_current() !== true)
-	{
-		return Core::is_current();
-	}
-	if (Core::is_healthy() !== true)
-	{
-		return Core::is_healthy();
-	}
-	return true;
+    global $cache, $lang;
+
+    $lang->load(Core::get_plugin_info('prefix'));
+
+    if (Core::is_current() !== true)
+    {
+        $installed = $cache->read(Core::get_plugin_info('prefix'))['version'] ?? 0;
+        $current = Core::get_plugin_info('version');
+
+        $lang->rt_livesearch_plugin_outdated = $lang->sprintf($lang->rt_livesearch_plugin_outdated, $installed, $current);
+
+        return <<<UPDATE
+			<br><span style="color: darkorange; font-weight: 700">{$lang->rt_livesearch_plugin_outdated}</span>
+			UPDATE;
+    }
+    if (Core::is_healthy() !== true)
+    {
+        return <<<ERROR
+			<br><span style="color: red; font-weight: 700">{$lang->rt_livesearch_plugin_unhealthy}</span>
+			ERROR;
+    }
+
+    return null;
 }
 
 /**
@@ -108,21 +122,21 @@ function check_plugin_status(): string|bool
  */
 function autoload_hooks_via_namespace(string $namespace): void
 {
-	global $plugins;
+    global $plugins;
 
-	$namespace = strtolower($namespace);
-	$user_functions = get_defined_functions()['user'];
+    $namespace = strtolower($namespace);
+    $user_functions = get_defined_functions()['user'];
 
-	foreach ($user_functions as $function)
-	{
-		$namespace_prefix = strlen($namespace) + 1;
+    foreach ($user_functions as $function)
+    {
+        $namespace_prefix = strlen($namespace) + 1;
 
-		if (substr($function, 0, $namespace_prefix) === $namespace . '\\')
-		{
-			$hook_name = substr_replace($function, '', 0, $namespace_prefix);
-			$plugins->add_hook($hook_name, $namespace . '\\' . $hook_name);
-		}
-	}
+        if (substr($function, 0, $namespace_prefix) === $namespace . '\\')
+        {
+            $hook_name = substr_replace($function, '', 0, $namespace_prefix);
+            $plugins->add_hook($hook_name, $namespace . '\\' . $hook_name);
+        }
+    }
 }
 
 /**
@@ -134,20 +148,20 @@ function autoload_hooks_via_namespace(string $namespace): void
  */
 function load_template_files(string $path, string $ext = '.tpl'): array
 {
-	$path = MYBB_ROOT . $path;
-	$templates = [];
+    $path = MYBB_ROOT . $path;
+    $templates = [];
 
-	foreach (new \DirectoryIterator($path) as $tpl)
-	{
-		if (!$tpl->isFile() || $tpl->getExtension() !== pathinfo($ext, PATHINFO_EXTENSION))
-		{
-			continue;
-		}
-		$name = basename($tpl->getFilename(), $ext);
-		$templates[$name] = file_get_contents($tpl->getPathname());
-	}
+    foreach (new \DirectoryIterator($path) as $tpl)
+    {
+        if (!$tpl->isFile() || $tpl->getExtension() !== pathinfo($ext, PATHINFO_EXTENSION))
+        {
+            continue;
+        }
+        $name = basename($tpl->getFilename(), $ext);
+        $templates[$name] = file_get_contents($tpl->getPathname());
+    }
 
-	return $templates;
+    return $templates;
 }
 
 /**
@@ -158,17 +172,17 @@ function load_template_files(string $path, string $ext = '.tpl'): array
  */
 function load_templatelist(string|array $templates): void
 {
-	global $templatelist;
+    global $templatelist;
 
-	$templates = match (is_array($templates))
-	{
-		true => implode(',', array_map(function ($template) {
-			return str_replace('_', '', Core::get_plugin_info('prefix')) . '_' . $template;
-		}, $templates)),
-		default => str_replace('_', '', Core::get_plugin_info('prefix')) . '_' . $templates
-	};
+    $templates = match (is_array($templates))
+    {
+        true => implode(',', array_map(function ($template) {
+            return str_replace('_', '', Core::get_plugin_info('prefix')) . '_' . $template;
+        }, $templates)),
+        default => str_replace('_', '', Core::get_plugin_info('prefix')) . '_' . $templates
+    };
 
-	$templatelist .= ',' . $templates;
+    $templatelist .= ',' . $templates;
 }
 
 /**
@@ -179,13 +193,13 @@ function load_templatelist(string|array $templates): void
  */
 function template(string $name, bool $modal = false): string
 {
-	global $templates;
+    global $templates;
 
-	$name = str_replace('_', '', Core::get_plugin_info('prefix')) . '_' . $name;
+    $name = str_replace('_', '', Core::get_plugin_info('prefix')) . '_' . $name;
 
-	return match ($modal)
-	{
-		true => $templates->get($name, 1, 0),
-		default => $templates->get($name)
-	};
+    return match ($modal)
+    {
+        true => $templates->get($name, 1, 0),
+        default => $templates->get($name)
+    };
 }

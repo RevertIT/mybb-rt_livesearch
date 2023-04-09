@@ -43,7 +43,7 @@ let LiveSearch = {
 
             if (searchTerm === "")
             {
-                container.innerHTML = spinner;
+                container.innerHTML = '';
                 spinnerClass.innerHTML = '';
                 viewAll.innerHTML = '';
                 return;
@@ -75,9 +75,9 @@ let LiveSearch = {
                 method: 'GET',
             });
 
-            if ( !do_search.ok)
+            if (!do_search.ok)
             {
-                throw new Error(`HTTP error! status: $ do_search.status}`);
+                throw new Error(`HTTP error! status: ${do_search.status}`);
             }
 
             const data1 = await do_search.json();

@@ -141,7 +141,7 @@ function search_do_search_end(): void
  */
 function search_results_thread(): void
 {
-	global  $mybb, $lang, $cache, $templates, $thread_cache, $parser, $parser_options, $forumcache, $highlight;
+	global $mybb, $lang, $cache, $templates, $thread_cache, $parser, $parser_options, $forumcache, $highlight;
 
 	if ($mybb->get_input('ext') === Core::get_plugin_info('prefix'))
 	{

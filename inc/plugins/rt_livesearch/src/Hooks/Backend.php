@@ -392,7 +392,7 @@ function admin_load(): void
 }
 
 /**
- * Hook: admin_config_action_handler
+ * Hook: admin_tools_action_handler
  *
  * @param array $actions
  * @return void
@@ -408,7 +408,7 @@ function admin_tools_action_handler(array &$actions): void
 }
 
 /**
- * Hook: admin_config_menu
+ * Hook: admin_tools_menu
  *
  * @param array $sub_menu
  * @return void
@@ -443,12 +443,12 @@ function admin_config_settings_change(): void
         if (strlen(trim_blank_chrs($mybb->input['upsetting']['rt_livesearch_keypress_letter'])) > 1)
         {
             flash_message($lang->rt_livesearch_keypress_letter_length, 'error');
-            admin_redirect("index.php?module=tools-settings&action=change&gid=".(int)$mybb->input['gid']);
+            admin_redirect("index.php?module=config-settings&action=change&gid=".(int)$mybb->input['gid']);
         }
         if (!preg_match('/[a-zA-Z]/', $mybb->input['upsetting']['rt_livesearch_keypress_letter']))
         {
             flash_message($lang->rt_livesearch_keypress_letter_alphabet, 'error');
-            admin_redirect("index.php?module=tools-settings&action=change&gid=".(int)$mybb->input['gid']);
+            admin_redirect("index.php?module=config-settings&action=change&gid=".(int)$mybb->input['gid']);
         }
     }
 }

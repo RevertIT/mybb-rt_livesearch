@@ -5,16 +5,23 @@ Very light and highly customizable plugin for your search queries.
 ### Table of contents
 
 1. [Dependencies](#dependencies)
-2. [Installation](#installation)
-3. [Update](#update)
-4. [Removal](#removal)
-5. [Feature request](#feature-request)
-6. [Preview](#preview)
+2. [Features](#features)
+3. [Installation](#installation)
+4. [Update](#update)
+5. [Removal](#removal)
+6. [Feature request](#feature-request)
+7. [Preview](#preview)
 
 ### Dependencies
 - MyBB 1.8.x
 - https://github.com/frostschutz/MyBB-PluginLibrary (>= 13)
 - PHP >= 8.0
+
+### Features
+- Ajax search with native MyBB search function.
+- KeyPress search. Bind key (default "S") on your keyboard to open search popup modal at any time while not typing.
+- COMING SOON: CustomAjaxSearch. Attach ajax search on any input field.
+- Deep search statistics provided via ChartJS. View total search queries, ajax search queries, normal search queries. Get graphs about type of search queries (post/thread), and more.
 
 ### Installation
 1. Copy the directories from the plugin inside your root MyBB installation.

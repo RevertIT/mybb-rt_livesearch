@@ -189,15 +189,15 @@ function search_results_thread(): void
         {
             $bgcolor = alt_trow();
             // Unapproved colour
-            if($thread['visible'] == 0)
+            if ($thread['visible'] == 0)
             {
                 $bgcolor = 'trow_shaded';
             }
-            elseif($thread['visible'] == -1)
+            elseif ($thread['visible'] == -1)
             {
                 $bgcolor = 'trow_shaded trow_deleted';
             }
-            if($thread['userusername'])
+            if ($thread['userusername'])
             {
                 $thread['username'] = $thread['userusername'];
             }
@@ -210,7 +210,7 @@ function search_results_thread(): void
             $thread['lastpostlink'] = get_thread_link($thread['tid'], 0, "lastpost");
 
             $thread['forumlink'] = '';
-            if($forumcache[$thread['fid']])
+            if ($forumcache[$thread['fid']])
             {
                 $thread['forumlink_link'] = get_forum_link($thread['fid']);
                 $thread['forumlink_name'] = $forumcache[$thread['fid']]['name'];
@@ -218,7 +218,7 @@ function search_results_thread(): void
             }
 
             $lastposteruid = $thread['lastposteruid'];
-            if(!$lastposteruid && !$thread['lastposter'])
+            if (!$lastposteruid && !$thread['lastposter'])
             {
                 $lastposter = htmlspecialchars_uni($lang->guest);
             }
@@ -230,7 +230,7 @@ function search_results_thread(): void
             $thread_link = get_thread_link($thread['tid']);
 
             // Don't link to guest's profiles (they have no profile).
-            if($lastposteruid == 0)
+            if ($lastposteruid == 0)
             {
                 $lastposterlink = $lastposter;
             }

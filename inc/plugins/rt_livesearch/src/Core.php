@@ -166,7 +166,6 @@ class Core
         }
     }
 
-
     /**
      * Add custom database columns on existing tables
      *
@@ -193,7 +192,7 @@ class Core
 
         $prefix = self::$plugin_info['prefix'];
 
-        if($mybb->request_method !== 'post')
+        if ($mybb->request_method !== 'post')
         {
             $lang->load($prefix);
 
@@ -201,11 +200,11 @@ class Core
         }
 
         // Drop tables
-        if(!isset($mybb->input['no']))
+        if (!isset($mybb->input['no']))
         {
             if ($db->field_exists('rt_ajax', 'searchlog'))
             {
-                $db->drop_column('searchlog', 'password_algorithm');
+                $db->drop_column('searchlog', 'rt_ajax');
             }
         }
 

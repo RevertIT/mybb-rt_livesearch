@@ -89,6 +89,27 @@ function misc_start(): void
 	}
 }
 
+/**
+ * Hook: search_do_search_start
+ *
+ * @return void
+ */
+function search_do_search_start(): void
+{
+    global $mybb;
+
+    // Use `rt_livesearch_keypress_timeout` for timeout when doing ajax search
+    if ($mybb->get_input('ext') === Core::get_plugin_info('prefix'))
+    {
+        $mybb->settings['searchfloodtime'] = round($mybb->settings['rt_livesearch_keypress_timeout'] / 1000);
+    }
+}
+
+/**
+ * Hook: search_do_search_end
+ *
+ * @return void
+ */
 function search_do_search_end(): void
 {
 	global $mybb, $sid, $sortorder, $sortby, $lang;
@@ -113,6 +134,11 @@ function search_do_search_end(): void
 	}
 }
 
+/**
+ * Hook: search_results_thread
+ *
+ * @return void
+ */
 function search_results_thread(): void
 {
 	global  $mybb, $lang, $cache, $templates, $thread_cache, $parser, $parser_options, $forumcache, $highlight;

@@ -41,7 +41,7 @@ class Core
             'website' => 'https://github.com/RevertIT/mybb-rt_livesearch',
             'author' => 'RevertIT',
             'authorsite' => 'https://github.com/RevertIT/',
-            'version' => '1.2',
+            'version' => '1.3',
             'compatibility' => '18*',
             'codename' => 'rt_livesearch',
             'prefix' => 'rt_livesearch'

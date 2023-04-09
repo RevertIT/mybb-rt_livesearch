@@ -81,7 +81,7 @@ function misc_start(): void
         $lang->load(Core::get_plugin_info('prefix'));
         $plugin_info = Core::get_plugin_info();
 
-        if ($mybb->get_input('load') === 'modal')
+        if ($mybb->get_input('load') === 'modal' && Core::function_enabled('keypress'))
         {
             $lang->load("search");
 
@@ -102,7 +102,7 @@ function search_do_search_start(): void
     global $mybb;
 
     // Use @var rt_livesearch_keypress_timeout for timeout when doing ajax search
-    if ($mybb->get_input('ext') === Core::get_plugin_info('prefix'))
+    if ($mybb->get_input('ext') === Core::get_plugin_info('prefix') && (int) $mybb->usergroup['cansearch'] === 1)
     {
         $mybb->settings['searchfloodtime'] = round($mybb->settings['rt_livesearch_keypress_timeout'] / 1000);
     }
@@ -118,7 +118,7 @@ function search_do_search_process(): void
     global $mybb, $searcharray;
 
     // Set 'rt_ajax' column to 1 when searching via ajax into 'searchlog' table
-    if ($mybb->get_input('ext') === Core::get_plugin_info('prefix'))
+    if ($mybb->get_input('ext') === Core::get_plugin_info('prefix') && (int) $mybb->usergroup['cansearch'] === 1)
     {
         $searcharray['rt_ajax'] = 1;
     }
@@ -133,7 +133,7 @@ function search_do_search_end(): void
 {
     global $mybb, $sid, $sortorder, $sortby, $lang;
 
-    if ($mybb->get_input('ext') === Core::get_plugin_info('prefix'))
+    if ($mybb->get_input('ext') === Core::get_plugin_info('prefix') && (int) $mybb->usergroup['cansearch'] === 1)
     {
         $prefix = Core::get_plugin_info('prefix');
 
@@ -162,7 +162,7 @@ function search_results_thread(): void
 {
     global $mybb, $lang, $cache, $templates, $thread_cache, $parser, $parser_options, $forumcache, $highlight;
 
-    if ($mybb->get_input('ext') === Core::get_plugin_info('prefix'))
+    if ($mybb->get_input('ext') === Core::get_plugin_info('prefix') && (int) $mybb->usergroup['cansearch'] === 1)
     {
         $lang->load(Core::get_plugin_info('prefix'));
         $lang->load("search");

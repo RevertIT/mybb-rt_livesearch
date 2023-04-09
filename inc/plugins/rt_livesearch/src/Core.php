@@ -75,7 +75,7 @@ class Core
     {
         global $mybb;
 
-        if (isset($mybb->settings['rt_livesearch_enabled']) && $mybb->settings['rt_livesearch_enabled'] !== '1')
+        if (isset($mybb->settings['rt_livesearch_enabled']) && (int) $mybb->settings['rt_livesearch_enabled'] !== 1)
         {
             return false;
         }
@@ -378,10 +378,15 @@ class Core
 
         return match ($function)
         {
-            'keypress' => isset($mybb->settings['rt_livesearch_keypress_usergroups'], $mybb->settings['rt_livesearch_keypress_enabled']) && (str_contains($mybb->settings['rt_livesearch_keypress_usergroups'], (string) $mybb->user['usergroup']) || $mybb->settings['rt_livesearch_keypress_usergroups'] === '-1') && $mybb->settings['rt_livesearch_keypress_enabled'] === '1',
-            'customajax' => isset($mybb->settings['rt_livesearch_customajax_usergroups'], $mybb->settings['rt_livesearch_customajax_enabled']) && (str_contains($mybb->settings['rt_livesearch_customajax_usergroups'], (string) $mybb->user['usergroup']) || $mybb->settings['rt_livesearch_customajax_usergroups'] === '-1') && $mybb->settings['rt_livesearch_customajax_enabled'] === '1',
+            'keypress' => isset($mybb->settings['rt_livesearch_keypress_usergroups'], $mybb->settings['rt_livesearch_keypress_enabled']) &&
+                (str_contains($mybb->settings['rt_livesearch_keypress_usergroups'], (string) $mybb->user['usergroup']) || $mybb->settings['rt_livesearch_keypress_usergroups'] === '-1') &&
+                (int) $mybb->settings['rt_livesearch_keypress_enabled'] === 1 &&
+                (int) $mybb->usergroup['cansearch'] === 1,
+            'customajax' => isset($mybb->settings['rt_livesearch_customajax_usergroups'], $mybb->settings['rt_livesearch_customajax_enabled']) &&
+                (str_contains($mybb->settings['rt_livesearch_customajax_usergroups'], (string) $mybb->user['usergroup']) || $mybb->settings['rt_livesearch_customajax_usergroups'] === '-1') &&
+                (int) $mybb->settings['rt_livesearch_customajax_enabled'] === 1 &&
+                (int) $mybb->usergroup['cansearch'] === 1,
             default => throw new \Exception('Function not found'),
         };
     }
-
 }

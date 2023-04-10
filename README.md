@@ -91,5 +91,7 @@ Open an issue here on GitHub and write your idea/problem.
 <img src="https://i.postimg.cc/J0JcgcV7/ss1.png" alt="ss1"/>
 <img src="https://i.postimg.cc/05JfbxMg/ss2.png" alt="ss2"/>
 <img src="https://i.postimg.cc/tCQz6fWs/ss3.png" alt="ss3"/>
+<img src="https://i.postimg.cc/6QM09qd3/ss6.png" alt="ss6"/>
 <img src="https://i.postimg.cc/qMsxxLxj/ss4.png" alt="ss4"/>
 <img src="https://i.postimg.cc/mgd2MSw4/ss5.png" alt="ss5"/>
+<img src="https://i.postimg.cc/Y9jxj73x/ss7.png" alt="ss7"/>

@@ -4,21 +4,23 @@ Very light and highly customizable plugin for your search queries.
 
 ### Table of contents
 
-1. [Dependencies](#dependencies)
-2. [Features](#features)
-3. [Installation](#installation)
-4. [Update](#update)
-5. [Removal](#removal)
-6. [How-to: Add custom search box](#how-to-add-custom-search-box)
-7. [Feature request](#feature-request)
-8. [Preview](#preview)
+1. [❗ Dependencies](#-dependencies)
+2. [📃 Features](#-features)
+3. [➕ Installation](#-installation)
+4. [🔼 Update](#-update)
+5. [➖ Removal](#-removal)
+6. [❔ How-to: Add custom search box](#-how-to-add-custom-search-box)
+7. [💡 Feature request](#-feature-request)
+8. [🙏 Questions](#-questions)
+9. [🐞 Bug reports](#-bug-reports)
+8. [📷 Preview](#-preview)
 
-### Dependencies
+### ❗ Dependencies
 - MyBB 1.8.x
 - https://github.com/frostschutz/MyBB-PluginLibrary (>= 13)
 - PHP >= 8.0
 
-### Features
+### 📃 Features
 - Ajax search with native MyBB search function.
 - **ZERO** additional database queries!
 - **KeyPress search**: Bind key (default "S") on your keyboard to open search popup modal at any time while not typing.
@@ -44,20 +46,20 @@ Very light and highly customizable plugin for your search queries.
   - **Organized templates**
   - Easy to use configuration and settings.
 
-### Installation
+### ➕ Installation
 1. Copy the directories from the plugin inside your root MyBB installation.
 2. Settings for the plugin are located in the "Plugin Settings" tab. (`/admin/index.php?module=config-settings`)
 
-### Update
+### 🔼 Update
 1. Deactivate the plugin.
 2. Replace the plugin files with the new files.
 3. Activate the plugin again.
 
-### Removal
+### ➖ Removal
 1. Uninstall the plugin from your plugin manager.
 2. _Optional:_ Delete all the RT LiveSearch plugin files from your MyBB folder.
 
-### How-to: Add custom search box
+### ❔ How-to: Add custom search box
 This is a minimal configuration needed for form to fire up ajax
 You can replace `custom_ajax*` with any other class
 ```smarty
@@ -84,10 +86,16 @@ You can replace `custom_ajax*` with any other class
 <script>LiveSearch.searchInput('.custom_ajax', {$mybb->settings['rt_livesearch_keypress_timeout']});</script>
 ```
 
-### Feature request
-Open an issue here on GitHub and write your idea/problem.
+### 💡 Feature request
+Open a new idea by [clicking here](https://github.com/RevertIT/mybb-rt_livesearch/discussions/new?category=ideas)
 
-### Preview
+### 🙏 Questions
+Open a new question by [clicking here](https://github.com/RevertIT/mybb-rt_livesearch/discussions/new?category=q-a)
+
+### 🐞 Bug reports
+Open a new bug report by [clicking here](https://github.com/RevertIT/mybb-rt_livesearch/issues/new)
+
+### 📷 Preview
 <img src="https://i.postimg.cc/J0JcgcV7/ss1.png" alt="ss1"/>
 <img src="https://i.postimg.cc/05JfbxMg/ss2.png" alt="ss2"/>
 <img src="https://i.postimg.cc/tCQz6fWs/ss3.png" alt="ss3"/>

@@ -41,7 +41,7 @@ class Core
             'website' => 'https://github.com/RevertIT/mybb-rt_livesearch',
             'author' => 'RevertIT',
             'authorsite' => 'https://github.com/RevertIT/',
-            'version' => '1.3',
+            'version' => '1.4',
             'compatibility' => '18*',
             'codename' => 'rt_livesearch',
             'prefix' => 'rt_livesearch'
@@ -207,7 +207,6 @@ class Core
                 $db->drop_column('searchlog', 'rt_ajax');
             }
         }
-
     }
 
     /**
@@ -241,17 +240,24 @@ class Core
                     'optionscode' => 'text',
                     'value' => 's'
                 ],
-                "keypress_timeout" => [
-                    'title' => 'Search timeout (in ms)',
-                    'description' => 'Time between user input inside search area to fire up ajax, by default it is set to 1000ms = 1s.<br/><b>Notice:</b> Setting it to lower values will flood ajax requests.',
-                    'optionscode' => 'numeric',
-                    'value' => 1000
-                ],
                 "keypress_usergroups" => [
                     'title' => 'KeyPress Permissions',
                     'description' => 'Which usergroups can use keypress?',
                     'optionscode' => 'groupselect',
                     'value' => '-1',
+                ],
+                "quick_search_change" => [
+                    'title' => 'Enable ajax quick search for native MyBB quick search box?',
+                    'description' => 'This will attempt to find <b>{$quicksearch}</b> inside your templates and replace it with <b>{$rt_quicksearch}</b>.
+					<br>Please check <b>rtlivesearch_quicksearch</b> template to make changes for styling if needed.',
+                    'optioncode' => 'checkbox',
+                    'value' => 0
+                ],
+                "keypress_timeout" => [
+                    'title' => 'Search timeout (in ms)',
+                    'description' => 'Time between user input inside search area to fire up ajax, by default it is set to 1000ms = 1s.<br/><b>Notice:</b> Setting it to lower values will flood ajax requests.',
+                    'optionscode' => 'numeric',
+                    'value' => 1000
                 ],
                 "total_results" => [
                     'title' => 'Total results',
@@ -346,9 +352,7 @@ class Core
     public static function edit_installed_templates(): void
     {
         // header
-        $replace = '{$'.self::$plugin_info['prefix'].'}';
-        $replace .= PHP_EOL;
-        $replace .= '                        {$quicksearch}';
+        $replace = '{$rt_quicksearch}';
         edit_template("header", '{$quicksearch}', $replace);
     }
 
@@ -360,9 +364,8 @@ class Core
     public static function revert_installed_templates_changes(): void
     {
         // header
-        $find = '                        {$'.self::$plugin_info['prefix'].'}';
-        $find .= PHP_EOL;
-        edit_template("header", $find, '');
+        $find = '{$rt_quicksearch}';
+        edit_template("header", $find, '{$quicksearch}');
     }
 
     /**
@@ -382,11 +385,7 @@ class Core
                 (str_contains($mybb->settings['rt_livesearch_keypress_usergroups'], (string) $mybb->user['usergroup']) || $mybb->settings['rt_livesearch_keypress_usergroups'] === '-1') &&
                 (int) $mybb->settings['rt_livesearch_keypress_enabled'] === 1 &&
                 (int) $mybb->usergroup['cansearch'] === 1,
-            'customajax' => isset($mybb->settings['rt_livesearch_customajax_usergroups'], $mybb->settings['rt_livesearch_customajax_enabled']) &&
-                (str_contains($mybb->settings['rt_livesearch_customajax_usergroups'], (string) $mybb->user['usergroup']) || $mybb->settings['rt_livesearch_customajax_usergroups'] === '-1') &&
-                (int) $mybb->settings['rt_livesearch_customajax_enabled'] === 1 &&
-                (int) $mybb->usergroup['cansearch'] === 1,
-            default => throw new \Exception('Function not found'),
+            default => (int) $mybb->usergroup['cansearch'] === 1,
         };
     }
 }

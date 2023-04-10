@@ -32,8 +32,8 @@ let LiveSearch = {
 
         const inputClass = pluginClass + '_keywords';
         const container = document.querySelector(pluginClass + '_container');
-        const spinnerClass = document.querySelector(pluginClass + '_spinner');
-        const viewAll = document.querySelector(pluginClass + '_viewall');
+        const spinnerClass = document.querySelector(pluginClass + '_spinner') ?? null;
+        const viewAll = document.querySelector(pluginClass + '_viewall') ?? null;
 
         document.querySelector(inputClass).addEventListener("input", (event) =>
         {
@@ -44,8 +44,15 @@ let LiveSearch = {
             if (searchTerm === "")
             {
                 container.innerHTML = '';
-                spinnerClass.innerHTML = '';
-                viewAll.innerHTML = '';
+                container.style.display = "none";
+                if (spinnerClass)
+                {
+                    spinnerClass.innerHTML = '';
+                }
+                if (viewAll)
+                {
+                    viewAll.innerHTML = '';
+                }
                 return;
             }
 
@@ -57,14 +64,17 @@ let LiveSearch = {
     },
     searchAjax: async (pluginClass) =>
     {
-        const container = document.querySelector(pluginClass + '_container');
-        const spinnerClass = document.querySelector(pluginClass + '_spinner');
         const formClass = document.querySelector(pluginClass + '_form');
-        const viewAll = document.querySelector(pluginClass + '_viewall');
+        const container = document.querySelector(pluginClass + '_container');
+        const spinnerClass = document.querySelector(pluginClass + '_spinner') ?? null;
+        const viewAll = document.querySelector(pluginClass + '_viewall') ?? null;
 
         try
         {
-            spinnerClass.innerHTML = spinner;
+            if (spinnerClass)
+            {
+                spinnerClass.innerHTML = spinner;
+            }
 
             // Get the form data
             const form = formClass;
@@ -105,14 +115,29 @@ let LiveSearch = {
                 outputHTML += item;
             }
             container.innerHTML = outputHTML;
-            viewAll.innerHTML = `<a href="${data1.redirect_url}">${data2.view_all}</a>`;
+            container.style.removeProperty('display');
 
-            spinnerClass.innerHTML = '';
+            if (viewAll)
+            {
+                viewAll.innerHTML = `<a href="${data1.redirect_url}">${data2.view_all}</a>`;
+            }
+
+            if (spinnerClass)
+            {
+                spinnerClass.innerHTML = '';
+            }
         }
         catch (error)
         {
-            viewAll.innerHTML = '';
-            spinnerClass.innerHTML = '';
+            if (viewAll)
+            {
+                viewAll.innerHTML = '';
+            }
+            if (spinnerClass)
+            {
+                spinnerClass.innerHTML = '';
+            }
+            container.style.removeProperty('display');
             container.innerHTML = `<small class="error_message">${error}</small>`;
         }
     }

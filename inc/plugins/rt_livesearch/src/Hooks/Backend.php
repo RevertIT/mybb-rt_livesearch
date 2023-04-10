@@ -57,94 +57,192 @@ function admin_load(): void
         {
             $page->output_header($lang->{$rt_livesearch_prefix . '_menu'} . ' - ' . $lang->{$rt_livesearch_prefix .'_tab_' . 'statistics'});
             $page->output_nav_tabs($sub_tabs, 'statistics');
+            $table = new \Table();
 
             // Query the data
+            $table_prefix = TABLE_PREFIX;
             $sql_table = TABLE_PREFIX.'searchlog';
 
             $graph_all = $db->write_query(<<<SQL
 			SELECT
-				COUNT(*) AS count,
+				COUNT(*) AS `count`,
 				DATE_FORMAT(FROM_UNIXTIME(dateline),
-				'%M %d, %h %p') AS hour
+				'%M %d, %h %p') AS `hour`
 			FROM
 				{$sql_table}
 			GROUP BY
-				HOUR
+				`hour`
 			ORDER BY
 				dateline ASC;
 			SQL);
 
             $graph_ajax = $db->write_query(<<<SQL
 			SELECT
-				COUNT(*) AS count,
+				COUNT(*) AS `count`,
 				DATE_FORMAT(FROM_UNIXTIME(dateline),
-				'%M %d, %h %p') AS hour
+				'%M %d, %h %p') AS `hour`
 			FROM
 				{$sql_table}
 			WHERE
 				rt_ajax = 1
 			GROUP BY
-				HOUR
+				`hour`
 			ORDER BY
 				dateline ASC;
 			SQL);
 
             $graph_nonajax = $db->write_query(<<<SQL
 			SELECT
-				COUNT(*) AS count,
+				COUNT(*) AS `count`,
 				DATE_FORMAT(FROM_UNIXTIME(dateline),
-				'%M %d, %h %p') AS hour
+				'%M %d, %h %p') AS `hour`
 			FROM
 				{$sql_table}
 			WHERE
 				rt_ajax != 1
 			GROUP BY
-				HOUR
+				`hour`
 			ORDER BY
 				dateline ASC;
 			SQL);
 
             $pie_chart = $db->write_query(<<<SQL
 			SELECT
-				COUNT(resulttype) AS count,
+				COUNT(resulttype) AS `count`,
 				resulttype
 			FROM
-				mybb_searchlog
+				{$sql_table}
 			GROUP BY
 				resulttype
 			ORDER BY
-				count ASC;
+				`count` ASC;
 			SQL);
 
             $pie_chart2 = $db->write_query(<<<SQL
 			SELECT
-				COUNT(resulttype) AS count,
+				COUNT(resulttype) AS `count`,
 				resulttype
 			FROM
-				mybb_searchlog
+				{$sql_table}
 			WHERE
 			    rt_ajax = 1
 			GROUP BY
 				resulttype
 			ORDER BY
-				count ASC;
+				`count` ASC;
 			SQL);
 
             $pie_chart3 = $db->write_query(<<<SQL
 			SELECT
-				COUNT(resulttype) AS count,
+				COUNT(resulttype) AS `count`,
 				resulttype
 			FROM
-				mybb_searchlog
+				{$sql_table}
 			WHERE
 			    rt_ajax != 1
 			GROUP BY
 				resulttype
 			ORDER BY
-				count ASC;
+				`count` ASC;
+			SQL);
+
+            $bar_chart = $db->write_query(<<<SQL
+			SELECT
+				COUNT(*) AS `count`,
+				u.username
+			FROM
+				{$sql_table} s
+			LEFT JOIN
+				{$table_prefix}users u ON u.uid = s.uid
+			GROUP BY
+				u.username
+			ORDER BY
+				`count` DESC;
+			SQL);
+
+            $bar_chart2 = $db->write_query(<<<SQL
+			SELECT
+				COUNT(*) AS `count`,
+				u.username
+			FROM
+				{$sql_table} s
+			LEFT JOIN
+				{$table_prefix}users u ON u.uid = s.uid
+			WHERE
+			    s.rt_ajax = 1
+			GROUP BY
+				u.username
+			ORDER BY
+				`count` DESC;
+			SQL);
+
+            $bar_chart3 = $db->write_query(<<<SQL
+			SELECT
+				COUNT(*) AS `count`,
+				u.username
+			FROM
+				{$sql_table} s
+			LEFT JOIN
+				{$table_prefix}users u ON u.uid = s.uid
+			WHERE
+			    s.rt_ajax != 1
+			GROUP BY
+				u.username
+			ORDER BY
+				`count` DESC;
+			SQL);
+
+            $doughnut_chart = $db->write_query(<<<SQL
+			SELECT
+				COUNT(keywords) AS `count`,
+				keywords
+			FROM
+				{$sql_table}
+			GROUP BY
+				keywords
+			ORDER BY
+				`count` DESC;
+			SQL);
+
+            $doughnut_chart2 = $db->write_query(<<<SQL
+			SELECT
+				COUNT(keywords) AS `count`,
+				keywords
+			FROM
+				{$sql_table}
+			WHERE
+			    rt_ajax = 1
+			GROUP BY
+				keywords
+			ORDER BY
+				`count` DESC;
+			SQL);
+
+            $doughnut_chart3 = $db->write_query(<<<SQL
+			SELECT
+				COUNT(keywords) AS `count`,
+				keywords
+			FROM
+				{$sql_table}
+			WHERE
+			    rt_ajax != 1
+			GROUP BY
+				keywords
+			ORDER BY
+				`count` DESC;
 			SQL);
 
             // Process the data into arrays for line charts
+            $labels_both = [];
+            $values_both = [];
+            foreach ($graph_all as $row)
+            {
+                $labels_both[] = $row['hour'];
+                $values_both[] = $row['count'];
+            }
+            $labels_both = json_encode($labels_both);
+            $values_both = json_encode($values_both);
+
             $values_ajax = [];
             foreach ($graph_ajax as $row)
             {
@@ -158,17 +256,6 @@ function admin_load(): void
                 $values_nonajax[] = $row['count'];
             }
             $values_nonajax = json_encode($values_nonajax);
-
-            // Process the data into arrays for Chart.js
-            $labels_both = [];
-            $values_both = [];
-            foreach ($graph_all as $row)
-            {
-                $labels_both[] = $row['hour'];
-                $values_both[] = $row['count'];
-            }
-            $labels_both = json_encode($labels_both);
-            $values_both = json_encode($values_both);
 
             // Process the data into arrays for pie charts
             $labels_piechart = [];
@@ -215,6 +302,115 @@ function admin_load(): void
                 'rgba(255, 159, 64, 0.2)',
                 'rgba(255, 159, 64, 0.3)',
             ]);
+
+            // Process the data into arrays for bar charts
+            $labels_barchart = [];
+            $values_barchart = [];
+            $barchart_num = 0;
+            foreach ($bar_chart as $row)
+            {
+                $barchart_num++;
+                if ($barchart_num > 20)
+                {
+                    break;
+                }
+                if ($row['username'] === null)
+                {
+                    $row['username'] = $lang->guest;
+                }
+                $labels_barchart[] = ucfirst($row['username']);
+                $values_barchart[] = $row['count'];
+            }
+            $labels_barchart = json_encode($labels_barchart);
+            $values_barchart = json_encode($values_barchart);
+
+            $labels_barchart2 = [];
+            $values_barchart2 = [];
+            $barchart2_num = 0;
+            foreach ($bar_chart2 as $row)
+            {
+                $barchart2_num++;
+                if ($barchart2_num > 20)
+                {
+                    break;
+                }
+                if ($row['username'] === null)
+                {
+                    $row['username'] = $lang->guest;
+                }
+                $labels_barchart2[] = ucfirst($row['username']);
+                $values_barchart2[] = $row['count'];
+            }
+            $labels_barchart2 = json_encode($labels_barchart2);
+            $values_barchart2 = json_encode($values_barchart2);
+
+            $labels_barchart3 = [];
+            $values_barchart3 = [];
+            $barchart3_num = 0;
+            foreach ($bar_chart3 as $row)
+            {
+                $barchart3_num++;
+                if ($barchart3_num > 20)
+                {
+                    break;
+                }
+                if ($row['username'] === null)
+                {
+                    $row['username'] = $lang->guest;
+                }
+                $labels_barchart3[] = ucfirst($row['username']);
+                $values_barchart3[] = $row['count'];
+            }
+            $labels_barchart3 = json_encode($labels_barchart3);
+            $values_barchart3 = json_encode($values_barchart3);
+
+            $labels_doughnut = [];
+            $values_doughnut = [];
+            $doughnut_num = 0;
+            foreach ($doughnut_chart as $row)
+            {
+                $doughnut_num++;
+                if ($doughnut_num > 20)
+                {
+                    break;
+                }
+                $labels_doughnut[] = ucfirst($row['keywords']);
+                $values_doughnut[] = $row['count'];
+            }
+            $labels_doughnut = json_encode($labels_doughnut);
+            $values_doughnut = json_encode($values_doughnut);
+
+            $labels_doughnut2 = [];
+            $values_doughnut2 = [];
+            $doughnut2_num = 0;
+            foreach ($doughnut_chart2 as $row)
+            {
+                $doughnut2_num++;
+                if ($doughnut2_num > 20)
+                {
+                    break;
+                }
+                $labels_doughnut2[] = ucfirst($row['keywords']);
+                $values_doughnut2[] = $row['count'];
+            }
+            $labels_doughnut2 = json_encode($labels_doughnut2);
+            $values_doughnut2 = json_encode($values_doughnut2);
+
+            $labels_doughnut3 = [];
+            $values_doughnut3 = [];
+            $doughnut3_num = 0;
+            foreach ($doughnut_chart3 as $row)
+            {
+                $doughnut3_num++;
+                if ($doughnut3_num > 20)
+                {
+                    break;
+                }
+                $labels_doughnut3[] = ucfirst($row['keywords']);
+                $values_doughnut3[] = $row['count'];
+            }
+            $labels_doughnut3 = json_encode($labels_doughnut3);
+            $values_doughnut3 = json_encode($values_doughnut3);
 
             $graph_html = <<<GRAPH
 			<!-- Create a canvas element to hold the chart -->
@@ -349,14 +545,161 @@ function admin_load(): void
 			</script>
 			CHART;
 
+            $barchart_label = $lang->{$rt_livesearch_prefix . '_chart4_desc'};
+            $barchart_html = <<<CHART
+			<canvas id="user_log"></canvas>
+			<script>
+			const user_log = document.getElementById('user_log').getContext('2d');
+			new Chart(user_log, {
+				type: 'bar',
+				data: {
+					labels: {$labels_barchart},
+					datasets: [{
+						label: '{$barchart_label}',
+						data: {$values_barchart},
+						borderWidth: 1
+					}]
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: true,
+				}
+			});
+			</script>
+			CHART;
+
+            $barchart2_label = $lang->{$rt_livesearch_prefix . '_chart5_desc'};
+            $barchart_html2 = <<<CHART
+			<canvas id="user_log2"></canvas>
+			<script>
+			const user_log2 = document.getElementById('user_log2').getContext('2d');
+			new Chart(user_log2, {
+				type: 'bar',
+				data: {
+					labels: {$labels_barchart2},
+					datasets: [{
+						label: '{$barchart2_label}',
+						data: {$values_barchart2},
+						borderWidth: 1
+					}]
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: true,
+				}
+			});
+			</script>
+			CHART;
+
+            $barchart3_label = $lang->{$rt_livesearch_prefix . '_chart6_desc'};
+            $barchart_html3 = <<<CHART
+			<canvas id="user_log3"></canvas>
+			<script>
+			const user_log3 = document.getElementById('user_log3').getContext('2d');
+			new Chart(user_log3, {
+				type: 'bar',
+				data: {
+					labels: {$labels_barchart3},
+					datasets: [{
+						label: '{$barchart3_label}',
+						data: {$values_barchart3},
+						borderWidth: 1
+					}]
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: true,
+				}
+			});
+			</script>
+			CHART;
+
+            $doughnutchart_html = <<<CHART
+			<canvas id="keyword_log" width="400" height="300"></canvas>
+			<script>
+			const keyword_log = document.getElementById('keyword_log').getContext('2d');
+			new Chart(keyword_log, {
+				type: 'doughnut',
+				data: {
+					labels: {$labels_doughnut},
+					datasets: [{
+						data: {$values_doughnut},
+						borderWidth: 1
+					}]
+				},
+				options: {
+					responsive: false,
+					maintainAspectRatio: false,
+					plugins: {
+						legend: {
+							position: 'bottom',
+						}
+					}
+				},
+			});
+			</script>
+			CHART;
+
+            $doughnutchart_html2 = <<<CHART
+			<canvas id="keyword_log2" width="400" height="300"></canvas>
+			<script>
+			const keyword_log2 = document.getElementById('keyword_log2').getContext('2d');
+			new Chart(keyword_log2, {
+				type: 'doughnut',
+				data: {
+					labels: {$labels_doughnut2},
+					datasets: [{
+						data: {$values_doughnut2},
+						borderWidth: 1
+					}]
+				},
+				options: {
+					responsive: false,
+					maintainAspectRatio: false,
+					plugins: {
+						legend: {
+							position: 'bottom',
+						}
+					}
+				},
+			});
+			</script>
+			CHART;
+
+            $doughnutchart_html3 = <<<CHART
+			<canvas id="keyword_log3" width="400" height="300"></canvas>
+			<script>
+			const keyword_log3 = document.getElementById('keyword_log3').getContext('2d');
+			new Chart(keyword_log3, {
+				type: 'doughnut',
+				data: {
+					labels: {$labels_doughnut3},
+					datasets: [{
+						data: {$values_doughnut3},
+						borderWidth: 1
+					}]
+				},
+				options: {
+					responsive: false,
+					maintainAspectRatio: false,
+					plugins: {
+						legend: {
+							position: 'bottom',
+						}
+					}
+				},
+			});
+			</script>
+			CHART;
+
             echo '<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>';
-            $table = new \Table;
-            $table->construct_header($lang->{$rt_livesearch_prefix . '_graph_desc'});
+            // Line graph
+            $table->construct_header($lang->{$rt_livesearch_prefix . '_graph_search_desc'});
             $table->construct_cell($graph_html);
             $table->construct_row();
-            $table->output($lang->{$rt_livesearch_prefix . '_graph_title'});
+            $table->output($lang->{$rt_livesearch_prefix . '_graph_search_title'});
 
-
+            // Pie charts 1-3
             $table->construct_header($lang->{$rt_livesearch_prefix . '_chart1_desc'});
             $table->construct_header($lang->{$rt_livesearch_prefix . '_chart2_desc'});
             $table->construct_header($lang->{$rt_livesearch_prefix . '_chart3_desc'});
@@ -371,7 +714,47 @@ function admin_load(): void
                 'class' =>  'align_center'
             ]);
             $table->construct_row();
-            $table->output($lang->{$rt_livesearch_prefix . '_chart_title'});
+            $table->output($lang->{$rt_livesearch_prefix . '_chart_type_title'});
+
+            // Bar charts
+            $table->construct_header($lang->{$rt_livesearch_prefix . '_chart4_desc'});
+            $table->construct_header($lang->{$rt_livesearch_prefix . '_chart5_desc'});
+            $table->construct_header($lang->{$rt_livesearch_prefix . '_chart6_desc'});
+
+            $table->construct_cell($barchart_html, [
+                'class' =>  'align_center',
+                'width' => '33%'
+            ]);
+            $table->construct_cell($barchart_html2, [
+                'class' =>  'align_center',
+                'width' => '33%'
+            ]);
+            $table->construct_cell($barchart_html3, [
+                'class' =>  'align_center',
+                'width' => '33%'
+            ]);
+            $table->construct_row();
+            $table->output($lang->{$rt_livesearch_prefix . '_chart_user_title'});
+
+            // Doughnut
+            $table->construct_header($lang->{$rt_livesearch_prefix . '_chart7_desc'});
+            $table->construct_header($lang->{$rt_livesearch_prefix . '_chart8_desc'});
+            $table->construct_header($lang->{$rt_livesearch_prefix . '_chart9_desc'});
+
+            $table->construct_cell($doughnutchart_html, [
+                'class' =>  'align_center',
+                'width' => '33%'
+            ]);
+            $table->construct_cell($doughnutchart_html2, [
+                'class' =>  'align_center',
+                'width' => '33%'
+            ]);
+            $table->construct_cell($doughnutchart_html3, [
+                'class' =>  'align_center',
+                'width' => '33%'
+            ]);
+            $table->construct_row();
+            $table->output($lang->{$rt_livesearch_prefix . '_chart_keywords_title'});
 
             $page->output_footer();
         }
@@ -438,6 +821,25 @@ function admin_config_settings_change(): void
 
     $lang->load(Core::get_plugin_info('prefix'));
 
+    if (isset($mybb->input['upsetting']['rt_livesearch_enabled']))
+    {
+        // Revert quick change to no when plugin is disabled
+        if ((int) $mybb->input['upsetting']['rt_livesearch_enabled'] === 0 && (int) $mybb->input['upsetting']['rt_livesearch_quick_search_change'] === 1)
+        {
+            $mybb->input['upsetting']['rt_livesearch_quick_search_change'] = 0;
+        }
+    }
+    if (isset($mybb->input['upsetting']['rt_livesearch_quick_search_change']))
+    {
+        if ((int) $mybb->input['upsetting']['rt_livesearch_quick_search_change'] === 1)
+        {
+            \rt\LiveSearch\Core::edit_installed_templates();
+        }
+        else
+        {
+            \rt\LiveSearch\Core::revert_installed_templates_changes();
+        }
+    }
     if (isset($mybb->input['upsetting']['rt_livesearch_keypress_letter']))
     {
         if (strlen(trim_blank_chrs($mybb->input['upsetting']['rt_livesearch_keypress_letter'])) > 1)

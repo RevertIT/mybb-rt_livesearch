@@ -78,9 +78,6 @@ function rt_livesearch_activate(): void
     \rt\LiveSearch\Core::add_settings();
     \rt\LiveSearch\Core::add_templates();
     \rt\LiveSearch\Core::set_cache();
-
-    // TODO: Add hooks for custom search box via ajax function
-    // \rt\LiveSearch\Core::edit_installed_templates();
 }
 
 function rt_livesearch_deactivate(): void

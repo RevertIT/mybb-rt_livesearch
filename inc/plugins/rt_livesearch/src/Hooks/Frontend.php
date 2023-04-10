@@ -24,7 +24,7 @@ use rt\LiveSearch\Core;
  */
 function global_start(): void
 {
-    global $mybb, $rt_livesearch;
+    global $mybb, $rt_quicksearch;
 
     // Cache templates
     switch(\THIS_SCRIPT)
@@ -45,6 +45,12 @@ function global_start(): void
             }
             break;
     };
+
+    if ((int) $mybb->settings['rt_livesearch_quick_search_change'] === 1 && (int) $mybb->usergroup['cansearch'] === 1)
+    {
+        \rt\LiveSearch\load_templatelist('quicksearch.tpl');
+        eval('$rt_quicksearch = "' . \rt\LiveSearch\template('quicksearch', true) . '";');
+    }
 }
 
 /**

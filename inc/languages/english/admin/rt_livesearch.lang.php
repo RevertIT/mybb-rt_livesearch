@@ -24,3 +24,21 @@ $l['rt_livesearch_chart_keywords_title'] = 'Most searched keywords';
 $l['rt_livesearch_chart7_desc'] = 'Most searched keywords via ajax/normal search queries (24 hrs)';
 $l['rt_livesearch_chart8_desc'] = 'Most searched keywords via ajax search queries (24 hrs)';
 $l['rt_livesearch_chart9_desc'] = 'Most searched keywords via normal search queries (24 hrs)';
+$l['rt_livesearch_tab_search_history'] = 'Search history';
+$l['rt_livesearch_tab_search_history_desc'] = 'Overview of search history by users.';
+$l['rt_livesearch_search_list'] = 'List of search history';
+$l['rt_livesearch_from_user'] = 'Username';
+$l['rt_livesearch_from_forum'] = 'Forum';
+$l['rt_livesearch_search_username'] = 'Username';
+$l['rt_livesearch_search_resulttype'] = 'Search type';
+$l['rt_livesearch_search_keywords'] = 'Search phrase';
+$l['rt_livesearch_search_forums'] = 'Forums';
+$l['rt_livesearch_search_ip'] = 'IP Address';
+$l['rt_livesearch_search_dateline'] = 'Date';
+$l['rt_livesearch_search_sort'] = 'Sort in';
+$l['rt_livesearch_search_by_asc'] = 'Ascending';
+$l['rt_livesearch_search_by_desc'] = 'Descending';
+$l['rt_livesearch_search_notfound'] = 'No results found';
+$l['rt_livesearch_disclaimer'] = 'Logs are deleted every 24 hours by MyBB task manager to free up database, and it cannot be changed via settings.
+<br><small>I might include an override setting, but so far I see no benefit of storing more logs.
+<br>-RevertIT</small>';

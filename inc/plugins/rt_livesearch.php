@@ -48,8 +48,8 @@ function rt_livesearch_info(): array
 
 function rt_livesearch_install(): void
 {
-    \rt\LiveSearch\load_pluginlibrary();
     \rt\LiveSearch\check_php_version();
+    \rt\LiveSearch\load_pluginlibrary();
 
     \rt\LiveSearch\Core::set_cache();
     \rt\LiveSearch\Core::add_database_columns();
@@ -62,8 +62,8 @@ function rt_livesearch_is_installed(): bool
 
 function rt_livesearch_uninstall(): void
 {
-    \rt\LiveSearch\load_pluginlibrary();
     \rt\LiveSearch\check_php_version();
+    \rt\LiveSearch\load_pluginlibrary();
 
     \rt\LiveSearch\Core::drop_database_columns();
     \rt\LiveSearch\Core::remove_settings();
@@ -72,8 +72,8 @@ function rt_livesearch_uninstall(): void
 
 function rt_livesearch_activate(): void
 {
-    \rt\LiveSearch\load_pluginlibrary();
     \rt\LiveSearch\check_php_version();
+    \rt\LiveSearch\load_pluginlibrary();
 
     \rt\LiveSearch\Core::add_settings();
     \rt\LiveSearch\Core::add_templates();
@@ -82,8 +82,8 @@ function rt_livesearch_activate(): void
 
 function rt_livesearch_deactivate(): void
 {
-    \rt\LiveSearch\load_pluginlibrary();
     \rt\LiveSearch\check_php_version();
+    \rt\LiveSearch\load_pluginlibrary();
 
     \rt\LiveSearch\Core::remove_templates();
     \rt\LiveSearch\Core::revert_installed_templates_changes();

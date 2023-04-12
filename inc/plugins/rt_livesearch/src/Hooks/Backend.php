@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace rt\LiveSearch\Hooks;
 
+use MyBB;
 use rt\LiveSearch\Core;
 
 /**
@@ -23,10 +24,12 @@ use rt\LiveSearch\Core;
  */
 function admin_load(): void
 {
-    global $db, $mybb, $lang, $run_module, $action_file, $page, $sub_tabs;
+    global $db, $mybb, $lang, $run_module, $action_file, $page, $sub_tabs, $form;
 
     if ($run_module === 'tools' && $action_file === Core::get_plugin_info('prefix'))
     {
+        $table = new \Table();
+        $table_prefix = TABLE_PREFIX;
         $rt_livesearch_prefix = Core::get_plugin_info('prefix');
         $lang->load($rt_livesearch_prefix);
 
@@ -36,12 +39,10 @@ function admin_load(): void
 
         $sub_tabs = [];
 
-        $allowed_actions = [
-            'statistics',
-        ];
-
+        $allowed_actions =
         $tabs = [
             'statistics',
+            'search_history'
         ];
 
         foreach ($tabs as $row)
@@ -57,10 +58,8 @@ function admin_load(): void
         {
             $page->output_header($lang->{$rt_livesearch_prefix . '_menu'} . ' - ' . $lang->{$rt_livesearch_prefix .'_tab_' . 'statistics'});
             $page->output_nav_tabs($sub_tabs, 'statistics');
-            $table = new \Table();
 
             // Query the data
-            $table_prefix = TABLE_PREFIX;
             $sql_table = TABLE_PREFIX.'searchlog';
 
             $graph_all = $db->write_query(<<<SQL
@@ -755,6 +754,188 @@ function admin_load(): void
             ]);
             $table->construct_row();
             $table->output($lang->{$rt_livesearch_prefix . '_chart_keywords_title'});
+
+            $page->output_footer();
+        }
+        elseif ($mybb->input['action'] === 'search_history')
+        {
+            $page->output_header($lang->{$rt_livesearch_prefix . '_menu'} . ' - ' . $lang->{$rt_livesearch_prefix .'_tab_' . 'search_history'});
+            $page->output_nav_tabs($sub_tabs, 'search_history');
+
+            echo <<<DISCLAIMER
+            <div class="confirm_action">
+                <p>
+                    {$lang->rt_livesearch_disclaimer}
+                </p>
+            </div>
+            DISCLAIMER;
+
+            $where = '';
+            $where_a = [];
+            $input = [
+                'username' => $mybb->get_input('username'),
+                'fid' => $mybb->get_input('fid', MyBB::INPUT_INT),
+                'order_by' => $mybb->get_input('order_by'),
+            ];
+
+            $order = match ($input['order_by'])
+            {
+                'asc' => 'ASC',
+                default => 'DESC'
+            };
+
+            if ($mybb->request_method === 'post')
+            {
+                if ($input['fid'] !== -1)
+                {
+                    $where_a[] = "(threads IN({$input['fid']}) OR posts IN({$input['fid']}))";
+                }
+
+                if (!empty($input['username']))
+                {
+                    $user = get_user_by_username($input['username']);
+                    $user['uid'] ??= -1;
+                    $where_a[] = "s.uid = '{$db->escape_string($user['uid'])}'";
+                }
+
+                if (!empty($where_a))
+                {
+                    $where = 'WHERE ' . implode(' AND ', $where_a);
+                }
+
+            }
+
+            $form = new \Form("index.php?module=tools-{$rt_livesearch_prefix}&amp;action=search_history", "post", "search_history");
+            $table->construct_header($lang->{$rt_livesearch_prefix . '_tab_search_history_desc'});
+
+            $content = "{$lang->rt_livesearch_from_user} {$form->generate_text_box('username', $mybb->get_input('username'))} ";
+            $content .= "{$lang->rt_livesearch_from_forum} {$form->generate_forum_select('fid', $mybb->get_input('fid', MyBB::INPUT_INT), ['id' => 'fid', 'main_option' => $lang->all_forums])} ";
+            $content .= "{$lang->rt_livesearch_search_sort} {$form->generate_select_box('order_by', [
+                'desc' => $lang->rt_livesearch_search_by_desc,
+                'asc' => $lang->rt_livesearch_search_by_asc,
+            ], $input['order_by'])}";
+            $content .= " ".$form->generate_submit_button($lang->view);
+            $table->construct_cell($content);
+
+            $table->construct_row();
+            $table->output($lang->{$rt_livesearch_prefix . '_tab_search_history'});
+            $form->end();
+
+            $query = $db->write_query(<<<SQL
+            SELECT
+                COUNT(*) as logs
+            FROM
+                {$table_prefix}searchlog s
+            LEFT JOIN {$table_prefix}users u ON
+                u.uid = s.uid
+            {$where}
+            SQL);
+
+            $total_rows = $db->fetch_field($query, "logs");
+
+            $per_page = 20;
+            $pagenum = $mybb->get_input('page', MyBB::INPUT_INT);
+
+            if($pagenum)
+            {
+                $start = ($pagenum - 1) * $per_page;
+                $pages = ceil($total_rows / $per_page);
+                if($pagenum > $pages)
+                {
+                    $start = 0;
+                    $pagenum = 1;
+                }
+            }
+            else
+            {
+                $start = 0;
+                $pagenum = 1;
+            }
+
+            $query = $db->write_query(<<<SQL
+            SELECT
+                s.*, u.username, u.usergroup
+            FROM
+                {$table_prefix}searchlog s
+            LEFT JOIN {$table_prefix}users u ON
+                u.uid = s.uid
+            {$where}
+            ORDER BY
+                s.dateline {$order}
+            LIMIT
+                {$start}, {$per_page}
+            SQL);
+
+            $table->construct_header($lang->{$rt_livesearch_prefix . '_search_username'});
+            $table->construct_header($lang->{$rt_livesearch_prefix . '_search_resulttype'});
+            $table->construct_header($lang->{$rt_livesearch_prefix . '_search_keywords'});
+            $table->construct_header($lang->{$rt_livesearch_prefix . '_search_forums'}, [
+                'class' => 'align_left'
+            ]);
+            $table->construct_header($lang->{$rt_livesearch_prefix . '_search_ip'}, [
+                'class' => 'align_center'
+            ]);
+            $table->construct_header($lang->{$rt_livesearch_prefix . '_search_dateline'}, [
+                'class' => 'align_center'
+            ]);
+
+            foreach ($query as $row)
+            {
+                $row['username'] = build_profile_link(format_name($row['username'], $row['usergroup']), $row['uid'], "_blank");
+                if (empty($row['username']))
+                {
+                    $row['username'] = $lang->guest;
+                }
+
+                $row['forum'] = explode(',', $row['posts']);
+
+                $row['dateline'] = my_date('relative', $row['dateline']);
+                $row['keywords'] = htmlspecialchars_uni($row['keywords']);
+                $row['ipaddress'] = my_inet_ntop($row['ipaddress']);
+                $row['resulttype'] = ucfirst($row['resulttype']);
+
+                $row['forums'] = '';
+                foreach ($row['forum'] as $f)
+                {
+                    $row['forums'] .= '<a href="' . $mybb->settings['bburl'] . '/' . get_forum_link((int) $f) . '">' . htmlspecialchars_uni(get_forum($f)['name'] ?? $lang->na) . '</a>, ';
+                }
+                $row['forums'] = rtrim($row['forums'], ', ');
+
+                $table->construct_cell($row['username'], [
+                    'class' =>  'align_left',
+                ]);
+
+                $table->construct_cell($row['resulttype'], [
+                    'class' => 'align_left'
+                ]);
+
+                $table->construct_cell($row['keywords'], [
+                    'class' =>  'align_left',
+                ]);
+
+                $table->construct_cell($row['forums'], [
+                    'class' =>  'align_left',
+                ]);
+
+                $table->construct_cell($row['ipaddress'], [
+                    'class' =>  'align_center',
+                ]);
+
+                $table->construct_cell($row['dateline'], [
+                    'class' =>  'align_center',
+                ]);
+                $table->construct_row();
+            }
+
+            if($table->num_rows() === 0)
+            {
+                $table->construct_cell($lang->rt_livesearch_search_notfound, ['colspan' => '6']);
+                $table->construct_row();
+            }
+
+            $table->output($lang->{$rt_livesearch_prefix . '_search_list'});
+
+            echo draw_admin_pagination($pagenum, $per_page, $total_rows, "index.php?module=tools-{$rt_livesearch_prefix}&amp;action=search_history&amp;username={$input['username']}&amp;fid={$input['fid']}");
 
             $page->output_footer();
         }

@@ -42,9 +42,12 @@ Very light and highly customizable plugin for your search queries.
     - Most searched keywords via ajax/normal search queries (24 hrs)
     - Most searched keywords via ajax search queries (24 hrs)
     - Most searched keywords via normal search queries (24 hrs)
-  - Replace/Revert MyBB quick search with ajax search via settings.
-  - **Organized templates**
-  - Easy to use configuration and settings.
+- **Search history**:
+  - View all search history data from user
+  - Sort your search via username, and from selected forum
+- Replace/Revert MyBB quick search with ajax search via settings.
+- **Organized templates**
+- Easy to use configuration and settings.
 
 ### ➕ Installation
 1. Copy the directories from the plugin inside your root MyBB installation.
@@ -103,3 +106,5 @@ Open a new bug report by [clicking here](https://github.com/RevertIT/mybb-rt_liv
 <img src="https://i.postimg.cc/qMsxxLxj/ss4.png" alt="ss4"/>
 <img src="https://i.postimg.cc/mgd2MSw4/ss5.png" alt="ss5"/>
 <img src="https://i.postimg.cc/Y9jxj73x/ss7.png" alt="ss7"/>
+<img src="https://i.postimg.cc/Y9jxj73x/ss7.png" alt="ss7"/>
+<img src="https://i.postimg.cc/Fs7jtH4b/ss8.png" alt="ss8"/>

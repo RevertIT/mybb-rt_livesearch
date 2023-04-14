@@ -225,13 +225,13 @@ class Core
                 "enabled" => [
                     'title' => 'Enable plugin?',
                     'description' => 'Useful way to disable plugin without deleting templates/settings.',
-                    'optioncode' => 'yesno',
+                    'optionscode' => 'yesno',
                     'value' => 1
                 ],
                 "keypress_enabled" => [
                     'title' => 'Enable KeyPress search',
                     'description' => 'Open quick search modal by pressing binded key.',
-                    'optioncode' => 'yesno',
+                    'optionscode' => 'yesno',
                     'value' => 1,
                 ],
                 "keypress_letter" => [
@@ -250,7 +250,7 @@ class Core
                     'title' => 'Enable ajax quick search for native MyBB quick search box?',
                     'description' => 'This will attempt to find <b>{$quicksearch}</b> inside your templates and replace it with <b>{$rt_quicksearch}</b>.
 					<br>Please check <b>rtlivesearch_quicksearch</b> template to make changes for styling if needed.',
-                    'optioncode' => 'checkbox',
+                    'optionscode' => 'checkbox',
                     'value' => 0
                 ],
                 "keypress_timeout" => [

@@ -35,21 +35,21 @@ function global_start(): void
                 $mybb->get_input('load') === 'modal'
             )
             {
-                \rt\LiveSearch\load_templatelist('rt_keypress_modal');
+                \rt\LiveSearch\load_templatelist('keypress_modal');
             }
             break;
         case 'search.php':
             if ($mybb->get_input('ext') === Core::get_plugin_info('prefix'))
             {
-                \rt\LiveSearch\load_templatelist('rt_search_results_row');
+                \rt\LiveSearch\load_templatelist('search_results_row');
             }
             break;
     };
 
     if ((int) $mybb->settings['rt_livesearch_quick_search_change'] === 1 && (int) $mybb->usergroup['cansearch'] === 1)
     {
-        \rt\LiveSearch\load_templatelist('rt_quicksearch.tpl');
-        eval('$rt_quicksearch = "' . \rt\LiveSearch\template('rt_quicksearch', true) . '";');
+        \rt\LiveSearch\load_templatelist('quicksearch.tpl');
+        eval('$rt_quicksearch = "' . \rt\LiveSearch\template('quicksearch', true) . '";');
     }
 }
 
@@ -91,7 +91,7 @@ function misc_start(): void
         {
             $lang->load("search");
 
-            eval('$page = "' . \rt\LiveSearch\template('rt_keypress_modal', true) . '";');
+            eval('$page = "' . \rt\LiveSearch\template('keypress_modal', true) . '";');
             output_page($page);
             exit;
         }
@@ -248,7 +248,7 @@ function search_results_thread(): void
             $thread['replies'] = my_number_format($thread['replies']);
             $thread['views'] = my_number_format($thread['views']);
 
-            eval('$results = "' . \rt\LiveSearch\template('rt_search_results_row', true) . '";');
+            eval('$results = "' . \rt\LiveSearch\template('search_results_row', true) . '";');
 
             $template[] = $results;
         }

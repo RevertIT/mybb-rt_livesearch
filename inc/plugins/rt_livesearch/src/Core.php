@@ -250,7 +250,7 @@ class Core
                     'title' => 'Enable ajax quick search for native MyBB quick search box?',
                     'description' => 'This will attempt to find <b>{$quicksearch}</b> inside your templates and replace it with <b>{$rt_quicksearch}</b>.
 					<br>Please check <b>rtlivesearch_quicksearch</b> template to make changes for styling if needed.',
-                    'optionscode' => 'checkbox',
+                    'optionscode' => 'yesno',
                     'value' => 0
                 ],
                 "keypress_timeout" => [

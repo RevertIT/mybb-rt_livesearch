@@ -48,7 +48,7 @@ function global_start(): void
 
     if ((int) $mybb->settings['rt_livesearch_quick_search_change'] === 1 && (int) $mybb->usergroup['cansearch'] === 1)
     {
-        \rt\LiveSearch\load_templatelist('quicksearch.tpl');
+        \rt\LiveSearch\load_templatelist('quicksearch');
         eval('$rt_quicksearch = "' . \rt\LiveSearch\template('quicksearch', true) . '";');
     }
 }

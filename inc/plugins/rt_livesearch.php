@@ -23,33 +23,34 @@ require MYBB_ROOT . 'inc/plugins/rt_livesearch/src/Core.php';
 require MYBB_ROOT . 'inc/plugins/rt_livesearch/src/functions.php';
 
 // Hooks manager
-require MYBB_ROOT . 'inc/plugins/rt_livesearch/src/Hooks/Backend.php';
+if (defined('IN_ADMINCP'))
+{
+    require MYBB_ROOT . 'inc/plugins/rt_livesearch/src/Hooks/Backend.php';
+}
 
 if (\rt\LiveSearch\Core::is_enabled())
 {
     require MYBB_ROOT . 'inc/plugins/rt_livesearch/src/Hooks/Frontend.php';
 }
 
-\rt\LiveSearch\autoload_hooks_via_namespace('rt\LiveSearch\Hooks');
+\rt\LiveSearch\autoload_plugin_hooks([
+    '\rt\LiveSearch\Hooks\Frontend',
+    '\rt\Livesearch\Hooks\Backend',
+]);
+
+// Health checks
+\rt\LiveSearch\load_plugin_version();
+\rt\LiveSearch\load_pluginlibrary();
 
 function rt_livesearch_info(): array
 {
-    return [
-        'name'			=> 	\rt\LiveSearch\Core::get_plugin_info('name'),
-        'description'	=>  \rt\LiveSearch\Core::get_plugin_info('description') . \rt\LiveSearch\check_plugin_status(),
-        'website'		=> 	\rt\LiveSearch\Core::get_plugin_info('website'),
-        'author'		=>  \rt\LiveSearch\Core::get_plugin_info('author'),
-        'authorsite'	=> 	\rt\LiveSearch\Core::get_plugin_info('authorsite'),
-        'version'		=>  \rt\LiveSearch\Core::get_plugin_info('version'),
-        'compatibility'	=>  \rt\LiveSearch\Core::get_plugin_info('compatibility'),
-        'codename'		=>  \rt\LiveSearch\Core::get_plugin_info('codename'),
-    ];
+    return \rt\LiveSearch\Core::$PLUGIN_DETAILS;
 }
 
 function rt_livesearch_install(): void
 {
     \rt\LiveSearch\check_php_version();
-    \rt\LiveSearch\load_pluginlibrary();
+    \rt\LiveSearch\check_pluginlibrary();
 
     \rt\LiveSearch\Core::set_cache();
     \rt\LiveSearch\Core::add_database_columns();
@@ -63,7 +64,7 @@ function rt_livesearch_is_installed(): bool
 function rt_livesearch_uninstall(): void
 {
     \rt\LiveSearch\check_php_version();
-    \rt\LiveSearch\load_pluginlibrary();
+    \rt\LiveSearch\check_pluginlibrary();
 
     \rt\LiveSearch\Core::drop_database_columns();
     \rt\LiveSearch\Core::remove_settings();
@@ -73,7 +74,7 @@ function rt_livesearch_uninstall(): void
 function rt_livesearch_activate(): void
 {
     \rt\LiveSearch\check_php_version();
-    \rt\LiveSearch\load_pluginlibrary();
+    \rt\LiveSearch\check_pluginlibrary();
 
     \rt\LiveSearch\Core::add_settings();
     \rt\LiveSearch\Core::add_templates();
@@ -83,7 +84,7 @@ function rt_livesearch_activate(): void
 function rt_livesearch_deactivate(): void
 {
     \rt\LiveSearch\check_php_version();
-    \rt\LiveSearch\load_pluginlibrary();
+    \rt\LiveSearch\check_pluginlibrary();
 
     \rt\LiveSearch\Core::remove_templates();
     \rt\LiveSearch\Core::revert_installed_templates_changes();

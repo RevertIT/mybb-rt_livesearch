@@ -32,15 +32,27 @@ function edit_template(string $title, string $find, string $replace): void
 }
 
 /**
- * PluginLibrary check loader
+ * PHP version check
+ *
+ * @return void
+ */
+function check_php_version(): void
+{
+    if (version_compare(PHP_VERSION, '8.0.0', '<'))
+    {
+        flash_message("PHP version must be at least 8.0.x due to security reasons.", "error");
+        admin_redirect("index.php?module=config-plugins");
+    }
+}
+
+/**
+ * PluginLibrary loader
  *
  * @return void
  */
 function load_pluginlibrary(): void
 {
-    global $lang, $PL;
-
-    $lang->load(Core::get_plugin_info('prefix'));
+    global $PL, $config, $mybb;
 
     if (!defined('PLUGINLIBRARY'))
     {
@@ -55,86 +67,129 @@ function load_pluginlibrary(): void
         }
         if (version_compare((string) $PL->version, '13', '<'))
         {
-            flash_message("PluginLibrary version is outdated, please update the plugin.", "error");
+            Core::$PLUGIN_DETAILS['description'] .= <<<DESC
+			<br/>
+			<b style="color: orange">
+				<img src="{$mybb->settings['bburl']}/{$config['admin_dir']}/styles/default/images/icons/warning.png" alt="">
+				PluginLibrary version is outdated. You can update it by <a href="https://community.mybb.com/mods.php?action=view&pid=573" target="_blank">clicking here</a>.
+			</b>
+			DESC;
+        }
+        else
+        {
+            Core::$PLUGIN_DETAILS['description'] .= <<<DESC
+			<br/>
+			<b style="color: green">
+				<img src="{$mybb->settings['bburl']}/{$config['admin_dir']}/styles/default/images/icons/tick.png" alt="">
+				PluginLibrary (ver-{$PL->version}) is installed.
+			</b>
+			DESC;
+        }
+    }
+    else
+    {
+        Core::$PLUGIN_DETAILS['description'] .= <<<DESC
+		<br/>
+		<b style="color: orange">
+			<img src="{$mybb->settings['bburl']}/{$config['admin_dir']}/styles/default/images/icons/warning.png" alt="">
+			PluginLibrary is missing. You can download it by <a href="https://community.mybb.com/mods.php?action=view&pid=573" target="_blank">clicking here</a>.
+		</b>
+		DESC;
+    }
+}
+
+/**
+ * PluginLibrary install checker
+ *
+ * @return void
+ */
+function check_pluginlibrary(): void
+{
+    global $PL;
+
+    if (!defined('PLUGINLIBRARY'))
+    {
+        define('PLUGINLIBRARY', MYBB_ROOT . 'inc/plugins/pluginlibrary.php');
+    }
+
+    if (file_exists(PLUGINLIBRARY))
+    {
+        if (!$PL)
+        {
+            require_once PLUGINLIBRARY;
+        }
+        if (version_compare((string) $PL->version, '13', '<'))
+        {
+            flash_message("PluginLibrary version is outdated. You can update it by <a href=\"https://community.mybb.com/mods.php?action=view&pid=573\">clicking here</a>.", "error");
             admin_redirect("index.php?module=config-plugins");
         }
     }
     else
     {
-        flash_message("PluginLibrary is missing.", "error");
+        flash_message("PluginLibrary is missing. You can download it by <a href=\"https://community.mybb.com/mods.php?action=view&pid=573\">clicking here</a>.", "error");
         admin_redirect("index.php?module=config-plugins");
     }
 }
 
 /**
- * General PHP version check
+ * Plugin version loader
  *
  * @return void
  */
-function check_php_version(): void
+function load_plugin_version(): void
 {
-    if (version_compare(PHP_VERSION, '8.0.0', '<'))
+    global $cache, $mybb, $config;
+
+    $cached_version = $cache->read(Core::get_plugin_info('prefix'));
+    $current_version = Core::get_plugin_info('version');
+
+    if (isset($cached_version['version'], $current_version))
     {
-        flash_message("PHP version must be at least 8.0.", "error");
-        admin_redirect("index.php?module=config-plugins");
+        if (version_compare($cached_version['version'], Core::get_plugin_info('version'), '<'))
+        {
+            Core::$PLUGIN_DETAILS['description'] .= <<<DESC
+			<br/>
+			<b style="color: orange">
+			<img src="{$mybb->settings['bburl']}/{$config['admin_dir']}/styles/default/images/icons/warning.png" alt="">
+			RT LiveSearch version missmatch. You need to deactivate and activate plugin again.
+			</b>
+			DESC;
+        }
+        else
+        {
+            Core::$PLUGIN_DETAILS['description'] .= <<<DESC
+			<br/>
+			<b style="color: green">
+			<img src="{$mybb->settings['bburl']}/{$config['admin_dir']}/styles/default/images/icons/tick.png" alt="">
+			RT LiveSearch (ver-{$current_version}) is up-to-date and ready for use.
+			</b>
+			DESC;
+        }
     }
 }
 
 /**
- * Determine the 'health' of the plugin
+ * Autoload plugin hooks
  *
- * @return string|null
- */
-function check_plugin_status(): ?string
-{
-    global $cache, $lang;
-
-    $lang->load(Core::get_plugin_info('prefix'));
-
-    if (Core::is_current() !== true)
-    {
-        $installed = $cache->read(Core::get_plugin_info('prefix'))['version'] ?? 0;
-        $current = Core::get_plugin_info('version');
-
-        $outdated = $lang->sprintf($lang->{Core::get_plugin_info('prefix') . '_plugin_outdated'}, $installed, $current);
-
-        return <<<UPDATE
-			<br><span style="color: darkorange; font-weight: 700">{$outdated}</span>
-			UPDATE;
-    }
-    if (Core::is_healthy() !== true)
-    {
-        return <<<ERROR
-			<br><span style="color: red; font-weight: 700">{$lang->{Core::get_plugin_info('prefix') . '_plugin_unhealthy'}}</span>
-			ERROR;
-    }
-
-    return null;
-}
-
-/**
- * Autoload hooks via namespace
- *
- * @copyright MyBB-Group
- *
- * @param string $namespace
+ * @param array $class Array of classes to load for hooks
  * @return void
  */
-function autoload_hooks_via_namespace(string $namespace): void
+function autoload_plugin_hooks(array $class): void
 {
     global $plugins;
 
-    $namespace = strtolower($namespace);
-    $user_functions = get_defined_functions()['user'];
-
-    foreach ($user_functions as $function)
+    foreach ($class as $hook)
     {
-        $namespace_prefix = strlen($namespace) + 1;
-
-        if (substr($function, 0, $namespace_prefix) === $namespace . '\\')
+        if (!class_exists($hook))
         {
-            $hook_name = substr_replace($function, '', 0, $namespace_prefix);
-            $plugins->add_hook($hook_name, $namespace . '\\' . $hook_name);
+            continue;
+        }
+
+        $user_functions = get_class_methods(new $hook());
+
+        foreach ($user_functions as $function)
+        {
+            $plugins->add_hook($function, [new $hook(), $function]);
         }
     }
 }

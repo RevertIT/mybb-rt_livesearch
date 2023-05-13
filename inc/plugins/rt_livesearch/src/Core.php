@@ -17,36 +17,29 @@ namespace rt\LiveSearch;
 class Core
 {
     /**
-     * @var array|string[]
+     * @var array
      */
-    private static array $plugin_info;
+    public static array $PLUGIN_DETAILS = [
+        'name' => 'RT Live Search',
+        'description' => 'Is a plugin which utilizes native MyBB search functionality and provides result via ajax. Very light and highly customizable plugin for your search queries.',
+        'website' => 'https://github.com/RevertIT/mybb-rt_livesearch',
+        'author' => 'RevertIT',
+        'authorsite' => 'https://github.com/RevertIT/',
+        'version' => '1.6',
+        'compatibility' => '18*',
+        'codename' => 'rt_livesearch',
+        'prefix' => 'rt_livesearch'
+    ];
 
     /**
-     * @var array|bool[]
-     */
-    private static array|bool $cache_info;
-
-    /**
-     * General plugin information
+     * Get plugin info
      *
-     * @return void
+     * @param string $info
+     * @return string
      */
-    private static function plugin_info(): void
+    public static function get_plugin_info(string $info): string
     {
-        global $cache;
-
-        static::$plugin_info = [
-            'name' => 'RT Live Search',
-            'description' => 'Is a plugin which utilizes native MyBB search functionality and provides result via ajax. Very light and highly customizable plugin for your search queries.',
-            'website' => 'https://github.com/RevertIT/mybb-rt_livesearch',
-            'author' => 'RevertIT',
-            'authorsite' => 'https://github.com/RevertIT/',
-            'version' => '1.5',
-            'compatibility' => '18*',
-            'codename' => 'rt_livesearch',
-            'prefix' => 'rt_livesearch'
-        ];
-        static::$cache_info = $cache->read(self::$plugin_info['prefix']);
+        return self::$PLUGIN_DETAILS[$info] ?? '';
     }
 
     /**
@@ -84,59 +77,6 @@ class Core
     }
 
     /**
-     * Check if plugin is in healthy state
-     *
-     * @return bool
-     */
-    public static function is_healthy(): bool
-    {
-        self::plugin_info();
-
-        if (self::is_installed() && empty(self::$cache_info))
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Check if plugin is up-to-date
-     *
-     * @return bool
-     */
-    public static function is_current(): bool
-    {
-        self::plugin_info();
-
-        $current = self::$cache_info;
-
-        if (!empty($current) && self::is_installed() && (version_compare(self::$plugin_info['version'], $current['version'], '>') || version_compare(self::$plugin_info['version'], $current['version'], '<')))
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Get current plugin information
-     *
-     * @param string $name Field name
-     * @return array|string
-     */
-    public static function get_plugin_info(string $name = ''): array|string
-    {
-        self::plugin_info();
-
-        return match(empty($name))
-        {
-            true => self::$plugin_info,
-            default => self::$plugin_info[$name] ?? ''
-        };
-    }
-
-    /**
      * Set plugin cache
      *
      * @return void
@@ -145,9 +85,9 @@ class Core
     {
         global $cache;
 
-        if (!empty(self::$plugin_info))
+        if (!empty(self::$PLUGIN_DETAILS))
         {
-            $cache->update(self::$plugin_info['prefix'], self::$plugin_info);
+            $cache->update(self::$PLUGIN_DETAILS['prefix'], self::$PLUGIN_DETAILS);
         }
     }
 
@@ -160,9 +100,9 @@ class Core
     {
         global $cache;
 
-        if (!empty($cache->read(self::$plugin_info['prefix'])))
+        if (!empty($cache->read(self::$PLUGIN_DETAILS['prefix'])))
         {
-            $cache->delete(self::$plugin_info['prefix']);
+            $cache->delete(self::$PLUGIN_DETAILS['prefix']);
         }
     }
 
@@ -190,13 +130,13 @@ class Core
     {
         global $mybb, $db, $lang, $page;
 
-        $prefix = self::$plugin_info['prefix'];
+        $prefix = self::$PLUGIN_DETAILS['prefix'];
 
         if ($mybb->request_method !== 'post')
         {
             $lang->load($prefix);
 
-            $page->output_confirm_action('index.php?module=config-plugins&action=deactivate&uninstall=1&plugin=' . self::$plugin_info['prefix'], $lang->{$prefix . '_uninstall_message'}, $lang->uninstall);
+            $page->output_confirm_action('index.php?module=config-plugins&action=deactivate&uninstall=1&plugin=' . self::$PLUGIN_DETAILS['prefix'], $lang->{$prefix . '_uninstall_message'}, $lang->uninstall);
         }
 
         // Drop tables
@@ -218,7 +158,7 @@ class Core
     {
         global $PL;
 
-        $PL->settings(self::$plugin_info['prefix'],
+        $PL->settings(self::$PLUGIN_DETAILS['prefix'],
             'RT LiveSearch Settings',
             'General settings for the RT LiveSearch',
             [
@@ -278,7 +218,7 @@ class Core
     {
         global $PL;
 
-        $PL->settings_delete(self::$plugin_info['prefix'], true);
+        $PL->settings_delete(self::$PLUGIN_DETAILS['prefix'], true);
     }
 
     public static function add_templates(): void
@@ -287,9 +227,9 @@ class Core
 
         $PL->templates(
         // Prevent underscore on template prefix
-            str_replace('_', '', self::$plugin_info['prefix']),
-            self::$plugin_info['name'],
-            load_template_files('inc/plugins/'.self::$plugin_info['prefix'].'/templates/')
+            str_replace('_', '', self::$PLUGIN_DETAILS['prefix']),
+            self::$PLUGIN_DETAILS['name'],
+            load_template_files('inc/plugins/'.self::$PLUGIN_DETAILS['prefix'].'/templates/')
         );
     }
 
@@ -297,7 +237,7 @@ class Core
     {
         global $PL;
 
-        $PL->templates_delete(str_replace('_', '', self::$plugin_info['prefix']), true);
+        $PL->templates_delete(str_replace('_', '', self::$PLUGIN_DETAILS['prefix']), true);
     }
 
     /**
@@ -309,11 +249,9 @@ class Core
     {
         global $mybb;
 
-        self::plugin_info();
-
         $html = null;
 
-        $html .= '<script src="'.$mybb->asset_url.'/jscripts/'.self::$plugin_info['prefix'].'.js?ver='.self::$plugin_info['version'].'"></script>' . PHP_EOL;
+        $html .= '<script src="'.$mybb->asset_url.'/jscripts/'.self::$PLUGIN_DETAILS['prefix'].'.js?ver='.self::$PLUGIN_DETAILS['version'].'"></script>' . PHP_EOL;
 
         $html .= '</head>';
 
@@ -335,7 +273,7 @@ class Core
         if (self::function_enabled('keypress'))
         {
             $load = 'modal';
-            $keypress_url = '/misc.php?action='.self::$plugin_info['prefix'].'&load='.$load;
+            $keypress_url = '/misc.php?action='.self::$PLUGIN_DETAILS['prefix'].'&load='.$load;
             $html .= '<script>LiveSearch.keypress("'.$keypress_url.'", "'.$mybb->settings['rt_livesearch_keypress_letter'].'")</script>' . PHP_EOL;
         }
 

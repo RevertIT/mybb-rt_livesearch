@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace rt\LiveSearch;
 
+use Exception;
+
 class Core
 {
     /**
@@ -221,6 +223,11 @@ class Core
         $PL->settings_delete(self::$PLUGIN_DETAILS['prefix'], true);
     }
 
+    /**
+     * Add templates
+     *
+     * @return void
+     */
     public static function add_templates(): void
     {
         global $PL;
@@ -233,6 +240,11 @@ class Core
         );
     }
 
+    /**
+     * Delete templates
+     *
+     * @return void
+     */
     public static function remove_templates(): void
     {
         global $PL;
@@ -262,7 +274,7 @@ class Core
      * Frontend body html injection
      *
      * @return string|null
-     * @throws \Exception
+     * @throws Exception
      */
     public static function body_html_front(): ?string
     {
@@ -311,7 +323,7 @@ class Core
      *
      * @param string $function Plugin function (keypress|customajax)
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public static function function_enabled(string $function): bool
     {

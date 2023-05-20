@@ -27,7 +27,7 @@ class Core
         'website' => 'https://github.com/RevertIT/mybb-rt_livesearch',
         'author' => 'RevertIT',
         'authorsite' => 'https://github.com/RevertIT/',
-        'version' => '1.6',
+        'version' => '1.7',
         'compatibility' => '18*',
         'codename' => 'rt_livesearch',
         'prefix' => 'rt_livesearch'
@@ -236,7 +236,7 @@ class Core
         // Prevent underscore on template prefix
             str_replace('_', '', self::$PLUGIN_DETAILS['prefix']),
             self::$PLUGIN_DETAILS['name'],
-            load_template_files('inc/plugins/'.self::$PLUGIN_DETAILS['prefix'].'/templates/')
+            load_template_files('inc/plugins/rt/src/LiveSearch/templates/')
         );
     }
 

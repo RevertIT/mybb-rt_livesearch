@@ -18,25 +18,31 @@ if (!defined("IN_MYBB"))
     die("Direct initialization of this file is not allowed.");
 }
 
-// Main files
-require MYBB_ROOT . 'inc/plugins/rt_livesearch/src/Core.php';
-require MYBB_ROOT . 'inc/plugins/rt_livesearch/src/functions.php';
+// Autoload classes
+require_once MYBB_ROOT . 'inc/plugins/rt/vendor/autoload.php';
 
+\rt\Autoload\psr4_autoloader(
+    'rt',
+    'src',
+    'rt\\LiveSearch\\',
+    [
+        'rt/LiveSearch/functions.php',
+    ]
+);
+
+$hooks = [];
 // Hooks manager
 if (defined('IN_ADMINCP'))
 {
-    require MYBB_ROOT . 'inc/plugins/rt_livesearch/src/Hooks/Backend.php';
+    $hooks[] = '\rt\LiveSearch\Hooks\Backend';
 }
-
 if (\rt\LiveSearch\Core::is_enabled())
 {
-    require MYBB_ROOT . 'inc/plugins/rt_livesearch/src/Hooks/Frontend.php';
+    $hooks[] = '\rt\LiveSearch\Hooks\Frontend';
 }
 
-\rt\LiveSearch\autoload_plugin_hooks([
-    '\rt\LiveSearch\Hooks\Frontend',
-    '\rt\Livesearch\Hooks\Backend',
-]);
+// Autoload plugin hooks
+\rt\LiveSearch\autoload_plugin_hooks($hooks);
 
 // Health checks
 \rt\LiveSearch\load_plugin_version();

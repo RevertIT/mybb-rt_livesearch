@@ -27,7 +27,7 @@ class Core
         'website' => 'https://github.com/RevertIT/mybb-rt_livesearch',
         'author' => 'RevertIT',
         'authorsite' => 'https://github.com/RevertIT/',
-        'version' => '1.7',
+        'version' => '1.8',
         'compatibility' => '18*',
         'codename' => 'rt_livesearch',
         'prefix' => 'rt_livesearch'
@@ -182,6 +182,12 @@ class Core
                     'optionscode' => 'text',
                     'value' => 's'
                 ],
+                "keypress_ctrl" => [
+                    'title' => 'Require CTRL + letter',
+                    'description' => 'Enabling this feature, will require user to press CTRL + bound key for pop-up search bar. Be aware, that default browser binding keys such as (ctrl + u, ctrl + t, etc.) will not be overwritten.',
+                    'optionscode' => 'yesno',
+                    'value' => 0
+                ],
                 "keypress_usergroups" => [
                     'title' => 'KeyPress Permissions',
                     'description' => 'Which usergroups can use keypress?',
@@ -284,9 +290,12 @@ class Core
 
         if (self::function_enabled('keypress'))
         {
+            $ctrlKeyRequired = (int) $mybb->settings['rt_livesearch_keypress_ctrl'] === 1 ? 1 : 0;
             $load = 'modal';
             $keypress_url = '/misc.php?action='.self::$PLUGIN_DETAILS['prefix'].'&load='.$load;
-            $html .= '<script>LiveSearch.keypress("'.$keypress_url.'", "'.$mybb->settings['rt_livesearch_keypress_letter'].'")</script>' . PHP_EOL;
+            $html .= <<<HTML
+                <script>LiveSearch.keypress('{$keypress_url}', '{$mybb->settings['rt_livesearch_keypress_letter']}', {$ctrlKeyRequired});</script>
+            HTML;
         }
 
         $html .= '</body>';

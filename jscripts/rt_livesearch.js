@@ -10,16 +10,27 @@
  */
 
 let LiveSearch = {
-    keypress: (url, eventKey) =>
+    keypress: (url, eventKey, enableCtrl = 0) =>
     {
         document.addEventListener('keydown', (event) =>
         {
             let target = event.target;
-            if ((event.key === eventKey.toUpperCase() || event.key === eventKey.toLowerCase()) &&
-                (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') &&
-                !$.modal.isActive()
-            )
+
+            let conditionForEvent = (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') && !$.modal.isActive();
+            let letterPress = event.key.toLowerCase() === eventKey.toLowerCase();
+            let ctrlDetection = event.ctrlKey || event.metaKey
+
+            if (conditionForEvent && letterPress)
             {
+                // Check if we need CTRL key
+                if (enableCtrl === 1)
+                {
+                    if (ctrlDetection === false)
+                    {
+                        return false;
+                    }
+                }
+
                 MyBB.popupWindow(url);
                 event.preventDefault();
                 return false;
